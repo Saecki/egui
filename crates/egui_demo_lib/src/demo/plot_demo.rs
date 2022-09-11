@@ -104,7 +104,7 @@ impl LineDemo {
         });
     }
 
-    fn circle(&self) -> Line {
+    fn circle(&self) -> Line<'static> {
         let n = 512;
         let circle_points: PlotPoints = (0..=n)
             .map(|i| {
@@ -122,7 +122,7 @@ impl LineDemo {
             .name("circle")
     }
 
-    fn sin(&self) -> Line {
+    fn sin(&self) -> Line<'static> {
         let time = self.time;
         Line::new(PlotPoints::from_explicit_callback(
             move |x| 0.5 * (2.0 * x).sin() * time.sin(),
@@ -134,7 +134,7 @@ impl LineDemo {
         .name("wave")
     }
 
-    fn thingy(&self) -> Line {
+    fn thingy(&self) -> Line<'static> {
         let time = self.time;
         Line::new(PlotPoints::from_parametric_callback(
             move |t| ((2.0 * t + time).sin(), (3.0 * t).sin()),
@@ -195,7 +195,7 @@ impl Default for MarkerDemo {
 }
 
 impl MarkerDemo {
-    fn markers(&self) -> Vec<Points> {
+    fn markers(&self) -> Vec<Points<'static>> {
         MarkerShape::all()
             .enumerate()
             .map(|(i, marker)| {
@@ -258,7 +258,7 @@ struct LegendDemo {
 }
 
 impl LegendDemo {
-    fn line_with_slope(slope: f64) -> Line {
+    fn line_with_slope(slope: f64) -> Line<'static> {
         Line::new(PlotPoints::from_explicit_callback(
             move |x| slope * x,
             ..,
@@ -266,7 +266,7 @@ impl LegendDemo {
         ))
     }
 
-    fn sin() -> Line {
+    fn sin() -> Line<'static> {
         Line::new(PlotPoints::from_explicit_callback(
             move |x| x.sin(),
             ..,
@@ -274,7 +274,7 @@ impl LegendDemo {
         ))
     }
 
-    fn cos() -> Line {
+    fn cos() -> Line<'static> {
         Line::new(PlotPoints::from_explicit_callback(
             move |x| x.cos(),
             ..,
@@ -336,7 +336,7 @@ impl CustomAxisDemo {
     const MINS_PER_DAY: f64 = 24.0 * 60.0;
     const MINS_PER_H: f64 = 60.0;
 
-    fn logistic_fn() -> Line {
+    fn logistic_fn() -> Line<'static> {
         fn days(min: f64) -> f64 {
             CustomAxisDemo::MINS_PER_DAY * min
         }
@@ -482,7 +482,7 @@ impl Default for LinkedAxisDemo {
 }
 
 impl LinkedAxisDemo {
-    fn line_with_slope(slope: f64) -> Line {
+    fn line_with_slope(slope: f64) -> Line<'static> {
         Line::new(PlotPoints::from_explicit_callback(
             move |x| slope * x,
             ..,
@@ -490,7 +490,7 @@ impl LinkedAxisDemo {
         ))
     }
 
-    fn sin() -> Line {
+    fn sin() -> Line<'static> {
         Line::new(PlotPoints::from_explicit_callback(
             move |x| x.sin(),
             ..,
@@ -498,7 +498,7 @@ impl LinkedAxisDemo {
         ))
     }
 
-    fn cos() -> Line {
+    fn cos() -> Line<'static> {
         Line::new(PlotPoints::from_explicit_callback(
             move |x| x.cos(),
             ..,

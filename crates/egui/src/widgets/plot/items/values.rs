@@ -151,44 +151,45 @@ impl Default for Orientation {
 /// Represents many [`PlotPoint`]s.
 ///
 /// These can be an owned `Vec` or generated with a function.
-pub enum PlotPoints {
+pub enum PlotPoints<'a> {
     Owned(Vec<PlotPoint>),
+    Borrowed(&'a [PlotPoint]),
     Generator(ExplicitGenerator),
-    // Borrowed(&[PlotPoint]), // TODO: Lifetimes are tricky in this case.
 }
 
-impl Default for PlotPoints {
+impl Default for PlotPoints<'_> {
     fn default() -> Self {
         Self::Owned(Vec::new())
     }
 }
 
-impl From<[f64; 2]> for PlotPoints {
+impl From<[f64; 2]> for PlotPoints<'_> {
     fn from(coordinate: [f64; 2]) -> Self {
         Self::new(vec![coordinate])
     }
 }
 
-impl From<Vec<[f64; 2]>> for PlotPoints {
+impl From<Vec<[f64; 2]>> for PlotPoints<'_> {
     fn from(coordinates: Vec<[f64; 2]>) -> Self {
         Self::new(coordinates)
     }
 }
 
-impl FromIterator<[f64; 2]> for PlotPoints {
+impl FromIterator<[f64; 2]> for PlotPoints<'_> {
     fn from_iter<T: IntoIterator<Item = [f64; 2]>>(iter: T) -> Self {
         Self::Owned(iter.into_iter().map(|point| point.into()).collect())
     }
 }
 
-impl PlotPoints {
+impl<'a> PlotPoints<'a> {
     pub fn new(points: Vec<[f64; 2]>) -> Self {
         Self::from_iter(points)
     }
 
-    pub fn points(&self) -> &[PlotPoint] {
+    pub fn points(&'a self) -> &'a [PlotPoint] {
         match self {
             PlotPoints::Owned(points) => points.as_slice(),
+            PlotPoints::Borrowed(points) => points,
             PlotPoints::Generator(_) => &[],
         }
     }
@@ -268,6 +269,7 @@ impl PlotPoints {
     pub(crate) fn is_empty(&self) -> bool {
         match self {
             PlotPoints::Owned(points) => points.is_empty(),
+            PlotPoints::Borrowed(points) => points.is_empty(),
             PlotPoints::Generator(_) => false,
         }
     }
@@ -307,6 +309,13 @@ impl PlotPoints {
             PlotPoints::Owned(points) => {
                 let mut bounds = PlotBounds::NOTHING;
                 for point in points {
+                    bounds.extend_with(point);
+                }
+                bounds
+            }
+            PlotPoints::Borrowed(points) => {
+                let mut bounds = PlotBounds::NOTHING;
+                for point in *points {
                     bounds.extend_with(point);
                 }
                 bounds

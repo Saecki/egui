@@ -982,15 +982,15 @@ impl Plot {
 
 /// Provides methods to interact with a plot while building it. It is the single argument of the closure
 /// provided to [`Plot::show`]. See [`Plot`] for an example of how to use it.
-pub struct PlotUi {
-    items: Vec<Box<dyn PlotItem>>,
+pub struct PlotUi<'a> {
+    items: Vec<Box<dyn PlotItem + 'a>>,
     next_auto_color_idx: usize,
     last_screen_transform: ScreenTransform,
     response: Response,
     ctx: Context,
 }
 
-impl PlotUi {
+impl<'a> PlotUi<'a> {
     fn auto_color(&mut self) -> Color32 {
         let i = self.next_auto_color_idx;
         self.next_auto_color_idx += 1;
@@ -1046,7 +1046,7 @@ impl PlotUi {
     }
 
     /// Add a data line.
-    pub fn line(&mut self, mut line: Line) {
+    pub fn line(&mut self, mut line: Line<'a>) {
         if line.series.is_empty() {
             return;
         };
@@ -1059,7 +1059,7 @@ impl PlotUi {
     }
 
     /// Add a polygon. The polygon has to be convex.
-    pub fn polygon(&mut self, mut polygon: Polygon) {
+    pub fn polygon(&mut self, mut polygon: Polygon<'a>) {
         if polygon.series.is_empty() {
             return;
         };
@@ -1081,7 +1081,7 @@ impl PlotUi {
     }
 
     /// Add data points.
-    pub fn points(&mut self, mut points: Points) {
+    pub fn points(&mut self, mut points: Points<'a>) {
         if points.series.is_empty() {
             return;
         };
@@ -1094,7 +1094,7 @@ impl PlotUi {
     }
 
     /// Add arrows.
-    pub fn arrows(&mut self, mut arrows: Arrows) {
+    pub fn arrows(&mut self, mut arrows: Arrows<'a>) {
         if arrows.origins.is_empty() || arrows.tips.is_empty() {
             return;
         };
@@ -1232,8 +1232,8 @@ pub fn uniform_grid_spacer(spacer: impl Fn(GridInput) -> [f64; 3] + 'static) -> 
 
 // ----------------------------------------------------------------------------
 
-struct PreparedPlot {
-    items: Vec<Box<dyn PlotItem>>,
+struct PreparedPlot<'a> {
+    items: Vec<Box<dyn PlotItem + 'a>>,
     show_x: bool,
     show_y: bool,
     label_formatter: LabelFormatter,
@@ -1247,7 +1247,7 @@ struct PreparedPlot {
     draw_cursors: Vec<Cursor>,
 }
 
-impl PreparedPlot {
+impl PreparedPlot<'_> {
     fn ui(self, ui: &mut Ui, response: &Response) -> Vec<Cursor> {
         let mut shapes = Vec::new();
 
