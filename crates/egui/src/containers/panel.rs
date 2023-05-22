@@ -370,9 +370,29 @@ impl SidePanel {
             // Then we can actually paint it as it animates.
             let expanded_width = PanelState::load(ctx, self.id)
                 .map_or(self.default_width, |state| state.rect.width());
-            let fake_width = how_expanded * expanded_width;
+            let (frame, inner_horizontal_margin, outer_horizontal_margin) =
+                self.frame.map_or((None, 0.0, 0.0), |mut f| {
+                    let inner = f.inner_margin.right + f.inner_margin.left;
+                    let outer = f.outer_margin.right + f.outer_margin.left;
+                    if self.side == Side::Left {
+                        f.inner_margin.left *= how_expanded;
+                        f.inner_margin.right *= how_expanded;
+                        f.outer_margin.left *= how_expanded;
+                        f.outer_margin.right *= how_expanded;
+                    }
+                    (Some(f), inner, outer)
+                });
+
+            let fake_width = match self.side {
+                Side::Left => {
+                    how_expanded
+                        * (expanded_width - inner_horizontal_margin - outer_horizontal_margin)
+                }
+                Side::Right => how_expanded * expanded_width,
+            };
             Self {
                 id: self.id.with("animating_panel"),
+                frame,
                 ..self
             }
             .resizable(false)
